@@ -9,9 +9,13 @@ RUN (curl -Ls https://cli.doppler.com/install.sh || wget -qO- https://cli.dopple
 
 COPY . .
 
-# Load DOPPLER_TOKEN secret from LayerCI
-SECRET ENV DOPPLER_TOKEN
+# Load several Doppler tokens from LayerCI
+SECRET ENV DOPPLER_TOKEN_CI
+SECRET ENV DOPPLER_TOKEN_STG
 
-# Run server with Doppler
-RUN BACKGROUND doppler run -- node server.js
+# You can use the Doppler CLI to fetch individual secrets and use them in the build
+RUN doppler --token $DOPPLER_TOKEN_CI secrets get DOPPLER_CONFIG --plain > config.txt
+
+# You can also use `doppler run` to execute your background process
+RUN BACKGROUND doppler --token $DOPPLER_TOKEN_STG run -- node server.js
 EXPOSE WEBSITE http://localhost:3000
